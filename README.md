@@ -101,6 +101,8 @@ Paste it into your browser.
 
 Success: You should see the "Welcome to nginx!" page.
 
+create an IAM role ec2 can access s3 ready only role , then go ec2 and modify the IAM role in the instance.
+
 Phase 3: S3 Integration & Data Transfer
 ✅ STEP 1 – Create the S3 Bucket
 S3 Dashboard: Click Create bucket.
@@ -128,7 +130,18 @@ Re-open your PuTTY session. We are going to use the AWS CLI you installed in Pha
 1. See the Bucket:
 
 Bash
-aws s3 ls
+aws s3 ls if it not works install aws cli (must)
+ sudo apt update
+sudo apt install unzip -y
+ # Download the installer
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+# Unzip the package
+unzip awscliv2.zip
+
+# Run the official install script
+sudo ./aws/install
+now run : aws s3 ls
 You should see your bucket name in the list.
 
 2. Look inside the Bucket:
