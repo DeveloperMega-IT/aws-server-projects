@@ -132,14 +132,13 @@ Re-open your PuTTY session. We are going to use the AWS CLI you installed in Pha
 Bash
 aws s3 ls if it not works install aws cli (must)
  sudo apt update
-sudo apt install curl -y
- # Download the installer
+sudo apt update
+sudo apt install unzip curl -y
+
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 
-# Unzip the package
 unzip awscliv2.zip
 
-# Run the official install script
 sudo ./aws/install
 now run : aws s3 ls
 You should see your bucket name in the list.
@@ -148,18 +147,8 @@ You should see your bucket name in the list.
 
 Bash
 aws s3 ls s3://your-bucket-name
-You should see secret-data.txt listed.
-3. Download the file to your EC2:
-The cp command works like the Linux "copy" command: aws s3 cp <source> <destination>. The . at the end means "download to the folder I am currently in."
-
-Bash
-aws s3 cp s3://your-bucket-name/secret-data.txt .
-4. Read the file:
-
-Bash
-cat secret-data.txt
-Bash
-sudo cp secret-data.txt /var/www/html/index.html
+sudo aws s3 cp s3://your-bucket-name/yourfile.txt /var/www/html/ - show file in browser
+http://3.109.54.104/sap.txt
 Now, go to your browser and refresh your Public IP. Your website will now display the "secret" text you downloaded from the S3 bucket.
 
 Phase 4: Monitoring & Alerting with CloudWatch
