@@ -220,3 +220,86 @@ You have now proven that your infrastructure is Self-Aware.
 Phase 1-3: You built the body (Server/Network/Storage).
 
 Phase 4: You gave it a nervous system (Monitoring/Alerts).
+
+create 2nd instance for server 2 with subnet 2 in different AZ
+load balancer 
+Step 1: Launch Instance 2 in Subnet 2
+This instance must be in the new subnet to provide the "High Availability" that the Load Balancer requires.
+
+Go to EC2 Console > Launch Instance.
+
+Name: My-Project-Server-02.
+
+OS: Ubuntu 24.04 LTS.
+
+Network Settings (Click Edit):
+
+VPC: Select your project VPC.
+
+Subnet: Select Public-Subnet-02.
+
+Auto-assign Public IP: Ensure it is Enabled.
+
+Security Group: Select your existing Web-server-SG.
+
+Advanced Details:
+
+IAM Instance Profile: Select Ec2-S3-role.
+
+Launch.
+
+Step 2: Configure Server 02 (Terminal)
+Once it's running, log in via PuTTY (using the new Public IP) and set it up to display your text file:
+
+Bash
+# Update and Install
+sudo apt update -y
+sudo apt install apache2 awscli -y
+
+# Download the file from S3
+# Replace 'your-bucket-name' with yours
+sudo aws s3 cp s3://your-bucket-name/hello.txt /var/www/html/hello.txt
+
+# Create a 'Server 2' marker so you can see the LB working
+sudo bash -c 'echo "<h1>Welcome to Server 02</h1>" > /var/www/html/index.html'
+Step 3: Create the Application Load Balancer (ALB)
+Now, we tie everything together.
+
+Target Group:
+
+Go to Target Groups > Create.
+
+Choose Instances. Name: My-Project-TG.
+
+Select your VPC.
+
+In the next screen, select both Instance 1 and Instance 2.
+
+Click Include as pending below > Create.
+
+Load Balancer:
+
+Go to Load Balancers > Create > Application Load Balancer.
+
+Name: My-Project-ALB.
+
+Network Mapping: Select your VPC and check the boxes for both Availability Zones (where Subnet 1 and Subnet 2 live).
+
+Listeners: Set HTTP:80 to forward to My-Project-TG.
+
+Create.
+
+The "Grand Reveal" for your friend
+Once the Load Balancer state is Active (usually takes 2 minutes):
+
+Copy the DNS Name of the ALB.
+
+Open it in a browser.
+
+Refresh repeatedly. You should see the page alternate between "Welcome to Server 01" (if you set that up) and "Welcome to Server 02."
+
+cd /var/www/html
+
+sudo cp sap.txt index.html
+
+run the above commands to show your file in server 1 so when u refresh server changes , when u stop instance 1 the instance 2 still works, high availability alb working
