@@ -132,7 +132,7 @@ Re-open your PuTTY session. We are going to use the AWS CLI you installed in Pha
 Bash
 aws s3 ls if it not works install aws cli (must)
  sudo apt update
-sudo apt install unzip -y
+sudo apt install curl -y
  # Download the installer
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 
