@@ -303,3 +303,71 @@ cd /var/www/html
 sudo cp sap.txt index.html
 
 run the above commands to show your file in server 1 so when u refresh server changes , when u stop instance 1 the instance 2 still works, high availability alb working
+Creating an Auto Scaling Group (ASG) is the best way to ensure your "Server 1" and "Server 2" are managed by a "robot" that keeps them healthy and identical.
+
+Since you already have the S3 bucket, VPC, and Load Balancer, follow these exact steps to automate the rest.
+
+Step 1: Create a Launch Template (The Blueprint)
+The ASG needs a "recipe" to know how to build your servers.
+
+Go to EC2 Dashboard > Launch Templates > Create launch template.
+
+Name: Project-Launch-Template.
+
+AMI: Select Ubuntu 24.04 LTS.
+
+Instance type: t2.micro (Free Tier).
+
+Security Groups: Select your existing Web-server-SG.
+
+Advanced Details (Crucial):
+
+IAM instance profile: Select your Ec2-S3-role.
+
+User Data: Paste this exact script (this fixes your index.html issue forever):
+
+Bash
+#!/bin/bash
+sudo apt update -y
+sudo apt install nginx awscli -y
+cd /var/www/html
+# Replace with your actual bucket name
+sudo aws s3 cp s3://project-s3-mega/sap.txt .
+sudo cp sap.txt index.html
+sudo systemctl restart nginx
+Click Create launch template.
+
+Step 2: Create the Auto Scaling Group (The Manager)
+Go to Auto Scaling Groups > Create Auto Scaling group.
+
+Name: My-Project-ASG.
+
+Launch template: Select the one you just made. Click Next.
+
+Network: * Select your VPC.
+
+Select both Public-Subnet-01 and Public-Subnet-02. Click Next.
+
+Load Balancing:
+
+Select Attach to an existing load balancer.
+
+Select your Target Group (My-Project-TG).
+
+Health checks: Check the box for ELB health checks. Click Next.
+
+Group size:
+
+Desired capacity: 2
+
+Minimum capacity: 1
+
+Maximum capacity: 4
+
+Scaling policies: Choose Target tracking scaling policy.
+
+Metric type: Average CPU utilization.
+
+Target value: 70. (This means if CPU hits 70%, add a server).
+
+Review and Create.
